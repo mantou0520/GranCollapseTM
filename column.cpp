@@ -54,7 +54,7 @@ int main(int argc, char **argv) try
     double Gn;          // Normal dissipative coefficient
     double Gt;          // Tangential dissipative coefficient
     double Mu;          // Microscopic friction coefficient
-	double Muw;         // Frictional coefficient of the bottom wall
+    double Muw;         // Frictional coefficient of the bottom wall
     double Bn;          // Cohesion normal stiffness
     double Bt;          // Cohesion tangential stiffness
     double Bm;          // Cohesion torque stiffness
@@ -74,9 +74,9 @@ int main(int argc, char **argv) try
     double rho;         // rho
     double Tf;          // Final time for the test
     {
-	    infile >> CrossSection;     infile.ignore(200,'\n');
-	    infile >> ptype;     infile.ignore(200,'\n');
-	    infile >> test;     infile.ignore(200,'\n');
+		infile >> CrossSection;     infile.ignore(200,'\n');
+		infile >> ptype;     infile.ignore(200,'\n');
+		infile >> test;     infile.ignore(200,'\n');
         infile >> Cohesion;     infile.ignore(200,'\n');
         infile >> fraction;     infile.ignore(200,'\n');
         infile >> Kn;           infile.ignore(200,'\n');
@@ -84,7 +84,7 @@ int main(int argc, char **argv) try
         infile >> Gn;           infile.ignore(200,'\n');
         infile >> Gt;           infile.ignore(200,'\n');
         infile >> Mu;           infile.ignore(200,'\n');
-		infile >> Muw;           infile.ignore(200,'\n');
+		infile >> Muw;          infile.ignore(200,'\n');
         infile >> Bn;           infile.ignore(200,'\n');
         infile >> Bt;           infile.ignore(200,'\n');
         infile >> Bm;           infile.ignore(200,'\n');
@@ -96,10 +96,10 @@ int main(int argc, char **argv) try
         infile >> Lx;           infile.ignore(200,'\n');
         infile >> Ly;           infile.ignore(200,'\n');
         infile >> Lz;           infile.ignore(200,'\n');
-	    infile >> scalingx;     infile.ignore(200,'\n');
-	    infile >> scalingy;     infile.ignore(200,'\n');
-	    infile >> scalingz;     infile.ignore(200,'\n');
-	    infile >> plane_x;      infile.ignore(200,'\n');
+		infile >> scalingx;     infile.ignore(200,'\n');
+		infile >> scalingy;     infile.ignore(200,'\n');
+		infile >> scalingz;     infile.ignore(200,'\n');
+		infile >> plane_x;      infile.ignore(200,'\n');
 	    infile >> plane_y;      infile.ignore(200,'\n');
         infile >> rho;          infile.ignore(200,'\n');
         infile >> Tf;           infile.ignore(200,'\n');
@@ -178,7 +178,7 @@ int main(int argc, char **argv) try
         d.AddPlane (-12, Vec3_t(-Lx/2.0,0.0,0.0), R, Cf*Lz, Ly, 1.0, 3.0*M_PI/2.0, &axis1);
         d.AddPlane (-13, Vec3_t(0.0,Ly/2.0,0.0),  R, Lx, Cf*Lz, 1.0, 3.0*M_PI/2.0, &axis0);
         d.AddPlane (-14, Vec3_t(0.0,-Ly/2.0,0.0), R, Lx, Cf*Lz, 1.0, M_PI/2.0, &axis0);
-        d.AddPlane (-15, Vec3_t(0.0,0.0,-Lz/2.0), R, Lx, Ly, 1.0, M_PI, &axis0);
+        d.AddPlane (-15, Vec3_t(0.0,0.0,-Lz/2.0), R, 1.2*Lx, 1.2*Ly, 1.0);
         d.GetParticle(-11)->FixVeloc();
 		d.GetParticle(-12)->FixVeloc();
 		d.GetParticle(-13)->FixVeloc();
@@ -189,19 +189,18 @@ int main(int argc, char **argv) try
     	{
             // d.Particles[np]->Tag = -1;
             d.Particles[np]->Ff = d.Particles[np]->Props.m*Vec3_t(0.0,0.0,-981.0);
-            d.Particles[np]->Props.Kn = Kn; //normal stiffness
-            d.Particles[np]->Props.Kt = Kt; //tangential stiffness
-            d.Particles[np]->Props.Gn = Gn; //Restitution coefficient
-            d.Particles[np]->Props.Mu = Mu; //Friction coefficient
-            
+            d.Particles[np]->Props.Kn = Kn; // normal stiffness
+            d.Particles[np]->Props.Kt = Kt; // trangential stiffness
+            d.Particles[np]->Props.Gn = Gn; // restitution coefficient
+            d.Particles[np]->Props.Mu = Mu; // frictional coefficient
     	}
-    	
+        
+        
         // solve to get random packed cubes
         dt = 0.5*d.CriticalDt(); //Calculating time step
         d.Alpha = R; //Verlet distance
 		//d.WriteXDMF("test");
         d.Solve(/*tf*/0.5*Tf, dt, /*dtOut*/0.5*Tf/20, NULL, NULL, "drop_cubes", 2, Nproc);
-		d.Save("stage_1");
 
 		
 		for (size_t np=0;np<d.Particles.Size();np++)
@@ -236,91 +235,175 @@ int main(int argc, char **argv) try
 		delpar5.Push(-15);
         d.DelParticles(delpar5);
 
+        // save the information from domain d
+        d.Save("Stage_1");
 
     }
     else throw new Fatal("Packing for particle type not implemented yet");
-	
-    //Determinaning the bounding box
-    Vec3_t Xmin,Xmax;
-    d.BoundingBox(Xmin,Xmax);
 
-    //Adding plate at the base of the column
-    d.AddPlane(-2,Vec3_t(0.0,0.0,Xmin(2)-R),R,plane_x*Lz,plane_y*Lz,rho);
-
-    //Fixing the Plane so it does not move (plane tag is -2)
-    d.GetParticle(-2)->FixVeloc();
-
-	// set the frictional coefficient for the bottom wall
-    Dict D;
-    D.Set(-2,"Kn, Kt, Gn, Mu",Kn, Kt, Gn, Muw);
-    d.SetProps(D);
-	
-	Dict B;
-	B.Set(-1,"Kn, Kt, Gn, Mu",Kn, Kt, Gn, Mu);
-	d.SetProps(B);
-	
-    //Adding gravity to all particles as a fixed force and setting up the stiffness constant
-    for (size_t np=0;np<d.Particles.Size();np++)
+    // solve the problem, but there's something different for the cubes   
+    if (ptype=="cube" || ptype=="Cube")
     {
-		
-        d.Particles[np]->Ff = d.Particles[np]->Props.m*Vec3_t(300.0,0.0,-981.0);
-        d.Particles[np]->Props.Kn = Kn; //normal stiffness
-        d.Particles[np]->Props.Kt = Kt; //tangential stiffness
-        d.Particles[np]->Props.Gn = Gn; //Restitution coefficient
-        d.Particles[np]->Props.Mu = Mu; //Friction coefficient
-    }
+        DEM::Domain dom;
+        dom.Load("Stage_1");
+        //Determinaning the bounding box
+        Vec3_t Xmin,Xmax;
+        dom.BoundingBox(Xmin,Xmax);
 
+        //Adding plate at the base of the column
+        dom.AddPlane(-2,Vec3_t(0.0,0.0,Xmin(2)-R),R,plane_x*Lz,plane_y*Lz,rho);
+
+        //Fixing the Plane so it does not move (plane tag is -2)
+        dom.GetParticle(-2)->FixVeloc();
+        // set properties for the particles
+        for (size_t np=0;np<dom.Particles.Size();np++)
+    	    {
+                // d.Particles[np]->Tag = -1;
+                dom.Particles[np]->Ff = dom.Particles[np]->Props.m*Vec3_t(0.0,0.0,-981.0);
+                dom.Particles[np]->Props.Kn = Kn; // normal stiffness
+                dom.Particles[np]->Props.Kt = Kt; // trangential stiffness
+                dom.Particles[np]->Props.Gn = Gn; // restitution coefficient
+                dom.Particles[np]->Props.Mu = Mu; // frictional coefficient
+    	    }
+	    // set the frictional coefficient for the bottom wall
 	
-	// Change the shape of cross-section
-	if (CrossSection=="circle" || CrossSection=="Circle")
-	{
-		for (size_t np=0;np<d.Particles.Size();np++)
-    	{
-        	if (d.Particles[np]->x(0)*d.Particles[np]->x(0)+d.Particles[np]->x(1)*d.Particles[np]->x(1)>=0.25*Lx*Ly)
+	    Dict B;
+	
+        B.Set(-2,"Mu",Muw);
+	    dom.SetProps(B);
+	
+	    // Change the shape of cross-section
+	    if (CrossSection=="circle" || CrossSection=="Circle")
+	    {
+		    for (size_t np=0;np<dom.Particles.Size();np++)
+    	    {
+        	    if (dom.Particles[np]->x(0)*dom.Particles[np]->x(0)+dom.Particles[np]->x(1)*dom.Particles[np]->x(1)>=0.25*Lx*Ly)
+        	    {
+           	 	    dom.Particles[np]->Tag = 10;
+        	    }
+    	    }
+    	    Array<int> delpar;
+    	    delpar.Push(10);
+    	    dom.DelParticles(delpar);
+	    }
+	    else if (CrossSection=="right_triangle")
+	    {
+		    for (size_t np=0;np<dom.Particles.Size();np++)
+    	    {
+        	    if (dom.Particles[np]->x(1) > Ly/Lx* dom.Particles[np]->x(0))
         	{
-           	 	d.Particles[np]->Tag = 10;
+           	 	dom.Particles[np]->Tag = 10;
         	}
     	}
     	Array<int> delpar;
     	delpar.Push(10);
-    	d.DelParticles(delpar);
-	}
-	else if (CrossSection=="right_triangle")
-	{
-		for (size_t np=0;np<d.Particles.Size();np++)
-    	{
-        	if (d.Particles[np]->x(1) > Ly/Lx* d.Particles[np]->x(0))
-        	{
-           	 	d.Particles[np]->Tag = 10;
-        	}
-    	}
-    	Array<int> delpar;
-    	delpar.Push(10);
-    	d.DelParticles(delpar);
-	}
-	else if (CrossSection=="isoscele_triangle")
-	{
-		for (size_t np=0;np<d.Particles.Size();np++)
-    	{
-        	if ((d.Particles[np]->x(1) > 2*Ly/Lx* d.Particles[np]->x(0) + Ly/2) || (d.Particles[np]->x(1) > -2*Ly/Lx* d.Particles[np]->x(0) + Ly/2))
-        	{
-           	 	d.Particles[np]->Tag = 10;
-        	}
-    	}
-    	Array<int> delpar;
-    	delpar.Push(10);
-    	d.DelParticles(delpar);
-	}
-	else if (CrossSection=="square" || CrossSection=="Square")
-	{
-		std::cout << "The cross-section is a square" << std::endl;
-	}
-	else throw new Fatal("Packing for particle type not implemented yet");
+    	dom.DelParticles(delpar);
+	    }
+	    else if (CrossSection=="isoscele_triangle")
+	    {
+		    for (size_t np=0;np<dom.Particles.Size();np++)
+    	    {
+        	    if ((dom.Particles[np]->x(1) > 2*Ly/Lx* dom.Particles[np]->x(0) + Ly/2) || (dom.Particles[np]->x(1) > -2*Ly/Lx* dom.Particles[np]->x(0) + Ly/2))
+        	    {
+           	    	dom.Particles[np]->Tag = 10;
+        	    }
+    	    }
+    	    Array<int> delpar;
+    	    delpar.Push(10);
+    	    dom.DelParticles(delpar);
+	    }
+	    else if (CrossSection=="square" || CrossSection=="Square")
+	    {
+		    std::cout << "The cross-section is a square" << std::endl;
+	    }
+	    else throw new Fatal("Packing for particle type not implemented yet");
 
-    // solve
-    dt = 0.5*d.CriticalDt(); //Calculating time step
-    d.Alpha = R; //Verlet distance
+        // solve
+        dt = 0.5*dom.CriticalDt(); //Calculating time step
+        dom.Alpha = R; //Verlet distance
+	    //d.WriteXDMF("test");
+        dom.Solve(/*tf*/1.5*Tf, dt, /*dtOut*/dtOut, NULL, NULL, "column", 2, Nproc);
+    }
+    else
+    {
+        //Determinaning the bounding box
+        Vec3_t Xmin,Xmax;
+        d.BoundingBox(Xmin,Xmax);
+
+        //Adding plate at the base of the column
+        d.AddPlane(-2,Vec3_t(0.0,0.0,Xmin(2)-R),R,plane_x*Lz,plane_y*Lz,rho);
+
+        //Fixing the Plane so it does not move (plane tag is -2)
+        d.GetParticle(-2)->FixVeloc();
+        // set properties for the particles
+        for (size_t np=0;np<d.Particles.Size();np++)
+    	{
+            // d.Particles[np]->Tag = -1;
+            d.Particles[np]->Ff = d.Particles[np]->Props.m*Vec3_t(0.0,0.0,-981.0);
+            d.Particles[np]->Props.Kn = Kn; // normal stiffness
+            d.Particles[np]->Props.Kt = Kt; // trangential stiffness
+            d.Particles[np]->Props.Gn = Gn; // restitution coefficient
+            d.Particles[np]->Props.Mu = Mu; // frictional coefficient
+    	}
+	    // set the frictional coefficient for the bottom wall
+	
+	    Dict B;
+        B.Set(-2,"Mu",Muw);
+	    d.SetProps(B);
+	
+	    // Change the shape of cross-section
+	    if (CrossSection=="circle" || CrossSection=="Circle")
+	    {
+		    for (size_t np=0;np<d.Particles.Size();np++)
+    	    {
+        	    if (d.Particles[np]->x(0)*d.Particles[np]->x(0)+d.Particles[np]->x(1)*d.Particles[np]->x(1)>=0.25*Lx*Ly)
+        	    {
+           	 	    d.Particles[np]->Tag = 10;
+        	    }
+    	    }
+    	    Array<int> delpar;
+    	    delpar.Push(10);
+    	    d.DelParticles(delpar);
+	    }
+	    else if (CrossSection=="right_triangle")
+	    {
+		    for (size_t np=0;np<d.Particles.Size();np++)
+    	    {
+        	    if (d.Particles[np]->x(1) > Ly/Lx* d.Particles[np]->x(0))
+        	    {
+           	 	    d.Particles[np]->Tag = 10;
+        	    }
+    	    }
+    	    Array<int> delpar;
+    	    delpar.Push(10);
+    	    d.DelParticles(delpar);
+	    }
+	    else if (CrossSection=="isoscele_triangle")
+	    {
+		    for (size_t np=0;np<d.Particles.Size();np++)
+    	    {
+        	    if ((d.Particles[np]->x(1) > 2*Ly/Lx* d.Particles[np]->x(0) + Ly/2) || (d.Particles[np]->x(1) > -2*Ly/Lx* d.Particles[np]->x(0) + Ly/2))
+        	    {
+           	 	    d.Particles[np]->Tag = 10;
+        	    }
+    	    }
+    	    Array<int> delpar;
+    	    delpar.Push(10);
+    	    d.DelParticles(delpar);
+	    }
+	    else if (CrossSection=="square" || CrossSection=="Square")
+	    {
+		    std::cout << "The cross-section is a square" << std::endl;
+	    }
+	    else throw new Fatal("Packing for particle type not implemented yet");
+
+        // solve
+        dt = 0.5*d.CriticalDt(); //Calculating time step
+        d.Alpha = R; //Verlet distance
 	//d.WriteXDMF("test");
-    d.Solve(/*tf*/1.5*Tf, dt, /*dtOut*/dtOut, NULL, NULL, "column", 2, Nproc);
+        d.Solve(/*tf*/1.5*Tf, dt, /*dtOut*/dtOut, NULL, NULL, "column", 2, Nproc);
+
+    }
+    
 }
 MECHSYS_CATCH
