@@ -140,7 +140,7 @@ int main(int argc, char **argv) try
         double Cf = 10.0;
         
         // estimate the number of particles we need
-		size_t num_of_particles = scalingx*scalingy*scalingz*Lx*Ly*Lz;
+		size_t num_of_particles = (scalingx*Lx+1)*(scalingy*Ly+1)*(scalingz*Lz+1);
 		double cube_size = 1.0/scalingx;
 		double delta_march = cube_size*sqrt(3.0);
 		// position of the first cube
@@ -200,13 +200,15 @@ int main(int argc, char **argv) try
         dt = 0.5*d.CriticalDt(); //Calculating time step
         d.Alpha = R; //Verlet distance
 		//d.WriteXDMF("test");
-        d.Solve(/*tf*/0.5*Tf, dt, /*dtOut*/0.5*Tf/20, NULL, NULL, "drop_cubes", 2, Nproc);
+        d.Solve(/*tf*/0.25*Tf, dt, /*dtOut*/5.0*dtOut, NULL, NULL, "drop_cubes", 2, Nproc);
 
 		
+		size_t countdel = 0;		
 		for (size_t np=0;np<d.Particles.Size();np++)
 		{
         	if (d.Particles[np]->x(0) > 0.5*Lx || d.Particles[np]->x(0) < -0.5*Lx || d.Particles[np]->x(1) > 0.5*Ly || d.Particles[np]->x(1) < -0.5*Ly || d.Particles[np]->x(2) > 0.5*Lz || d.Particles[np]->x(2) < -0.5*Lz)
         	{
+				countdel = countdel+1;
            	 	d.Particles[np]->Tag = 10;
         	}
 		}
@@ -217,8 +219,11 @@ int main(int argc, char **argv) try
 		Array<int> delpar4;
 		Array<int> delpar5;
 		
-    	delpar0.Push(10);
-    	d.DelParticles(delpar0);
+    	if (countdel > 0)
+		{
+    		delpar0.Push(10);
+    		d.DelParticles(delpar0);
+		}
 
         delpar1.Push(-11);
         d.DelParticles(delpar1);
@@ -257,14 +262,14 @@ int main(int argc, char **argv) try
         dom.GetParticle(-2)->FixVeloc();
         // set properties for the particles
         for (size_t np=0;np<dom.Particles.Size();np++)
-    	    {
-                // d.Particles[np]->Tag = -1;
-                dom.Particles[np]->Ff = dom.Particles[np]->Props.m*Vec3_t(0.0,0.0,-981.0);
-                dom.Particles[np]->Props.Kn = Kn; // normal stiffness
-                dom.Particles[np]->Props.Kt = Kt; // trangential stiffness
-                dom.Particles[np]->Props.Gn = Gn; // restitution coefficient
-                dom.Particles[np]->Props.Mu = Mu; // frictional coefficient
-    	    }
+    	{
+        	// d.Particles[np]->Tag = -1;
+			dom.Particles[np]->Ff = dom.Particles[np]->Props.m*Vec3_t(0.0,0.0,-981.0);
+        	dom.Particles[np]->Props.Kn = Kn; // normal stiffness
+         	dom.Particles[np]->Props.Kt = Kt; // trangential stiffness
+        	dom.Particles[np]->Props.Gn = Gn; // restitution coefficient
+         	dom.Particles[np]->Props.Mu = Mu; // frictional coefficient
+    	}
 	    // set the frictional coefficient for the bottom wall
 	
 	    Dict B;
@@ -401,7 +406,7 @@ int main(int argc, char **argv) try
         dt = 0.5*d.CriticalDt(); //Calculating time step
         d.Alpha = R; //Verlet distance
 	//d.WriteXDMF("test");
-        d.Solve(/*tf*/1.5*Tf, dt, /*dtOut*/dtOut, NULL, NULL, "column", 2, Nproc);
+        d.Solve(/*tf*/Tf, dt, /*dtOut*/dtOut, NULL, NULL, "column", 2, Nproc);
 
     }
     
