@@ -137,7 +137,7 @@ int main(int argc, char **argv) try
         
         Vec3_t axis0(OrthoSys::e0); // rotation of face
         Vec3_t axis1(OrthoSys::e1); // rotation of face
-        double Cf = 10.0;
+        double Cf = 15.0;
         
         // estimate the number of particles we need
 		size_t num_of_particles = (scalingx*Lx+1)*(scalingy*Ly+1)*(scalingz*Lz+1);
@@ -200,7 +200,7 @@ int main(int argc, char **argv) try
         dt = 0.5*d.CriticalDt(); //Calculating time step
         d.Alpha = R; //Verlet distance
 		//d.WriteXDMF("test");
-        d.Solve(/*tf*/0.25*Tf, dt, /*dtOut*/5.0*dtOut, NULL, NULL, "drop_cubes", 2, Nproc);
+        d.Solve(/*tf*/Tf, dt, /*dtOut*/5.0*dtOut, NULL, NULL, "drop_cubes", 2, Nproc);
 
 		
 		size_t countdel = 0;		
@@ -327,7 +327,7 @@ int main(int argc, char **argv) try
         dt = 0.5*dom.CriticalDt(); //Calculating time step
         dom.Alpha = R; //Verlet distance
 	    //d.WriteXDMF("test");
-        dom.Solve(/*tf*/1.5*Tf, dt, /*dtOut*/dtOut, NULL, NULL, "column", 2, Nproc);
+        dom.Solve(/*tf*/2.0*Tf, dt, /*dtOut*/dtOut, NULL, NULL, "column_cube", 2, Nproc);
     }
     else
     {
