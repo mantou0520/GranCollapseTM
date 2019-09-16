@@ -62,7 +62,8 @@ int main(int argc, char **argv) try
     double R;           // Spheroradius
     size_t seed;        // Seed of the ramdon generator
     double dt;          // Time step
-    double dtOut;       // Time step for output
+	double dtOut1;      // Time step for output for the dropping stage
+    double dtOut;       // Time step for output for the collapsing stage
     double Lx;          // Lx
     double Ly;          // Ly
     double Lz;          // Lz
@@ -72,14 +73,15 @@ int main(int argc, char **argv) try
     size_t plane_x;     // the scaling of the size of the plane in x direction, how many particles per unit length
     size_t plane_y;     // the scaling of the size of the plane in y direction, how many particles per unit length
     double rho;         // rho
-    double Tf;          // Final time for the test
+	double Tf1;         // Final time for the dropping stage test
+    double Tf;          // Final time for the collapsing test
     {
 		infile >> CrossSection;     infile.ignore(200,'\n');
 		infile >> ptype;     infile.ignore(200,'\n');
 		infile >> test;     infile.ignore(200,'\n');
-        infile >> Cohesion;     infile.ignore(200,'\n');
-        infile >> fraction;     infile.ignore(200,'\n');
-        infile >> Kn;           infile.ignore(200,'\n');
+		infile >> Cohesion;     infile.ignore(200,'\n');
+		infile >> fraction;     infile.ignore(200,'\n');
+		infile >> Kn;           infile.ignore(200,'\n');
         infile >> Kt;           infile.ignore(200,'\n');
         infile >> Gn;           infile.ignore(200,'\n');
         infile >> Gt;           infile.ignore(200,'\n');
@@ -92,6 +94,7 @@ int main(int argc, char **argv) try
         infile >> R;            infile.ignore(200,'\n');
         infile >> seed;         infile.ignore(200,'\n');
         infile >> dt;           infile.ignore(200,'\n');
+		infile >> dtOut1;       infile.ignore(200,'\n');
         infile >> dtOut;        infile.ignore(200,'\n');
         infile >> Lx;           infile.ignore(200,'\n');
         infile >> Ly;           infile.ignore(200,'\n');
@@ -102,6 +105,7 @@ int main(int argc, char **argv) try
 		infile >> plane_x;      infile.ignore(200,'\n');
 	    infile >> plane_y;      infile.ignore(200,'\n');
         infile >> rho;          infile.ignore(200,'\n');
+		infile >> Tf1;          infile.ignore(200,'\n');
         infile >> Tf;           infile.ignore(200,'\n');
     }
 
@@ -200,7 +204,7 @@ int main(int argc, char **argv) try
         dt = 0.5*d.CriticalDt(); //Calculating time step
         d.Alpha = R; //Verlet distance
 		//d.WriteXDMF("test");
-        d.Solve(/*tf*/Tf, dt, /*dtOut*/5.0*dtOut, NULL, NULL, "drop_cubes", 2, Nproc);
+        d.Solve(/*tf*/Tf1, dt, /*dtOut*/dtOut1, NULL, NULL, "drop_cubes", 2, Nproc);
 
 		
 		size_t countdel = 0;		
@@ -327,7 +331,7 @@ int main(int argc, char **argv) try
         dt = 0.5*dom.CriticalDt(); //Calculating time step
         dom.Alpha = R; //Verlet distance
 	    //d.WriteXDMF("test");
-        dom.Solve(/*tf*/2.0*Tf, dt, /*dtOut*/dtOut, NULL, NULL, "column_cube", 2, Nproc);
+        dom.Solve(/*tf*/Tf, dt, /*dtOut*/dtOut, NULL, NULL, "column_cube", 2, Nproc);
     }
     else
     {
@@ -405,7 +409,7 @@ int main(int argc, char **argv) try
         // solve
         dt = 0.5*d.CriticalDt(); //Calculating time step
         d.Alpha = R; //Verlet distance
-	//d.WriteXDMF("test");
+		//d.WriteXDMF("test");
         d.Solve(/*tf*/Tf, dt, /*dtOut*/dtOut, NULL, NULL, "column", 2, Nproc);
 
     }
