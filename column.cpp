@@ -51,30 +51,30 @@ int main(int argc, char **argv) try
 	double Kn;          // Normal stiffness
 	double Kt;          // Tangential stiffness
 	double Gn;          // Normal dissipative coefficient
-    double Gt;          // Tangential dissipative coefficient
-    double Mu;          // Microscopic friction coefficient
-    double Muw;         // Frictional coefficient of the bottom wall
-    double Bn;          // Cohesion normal stiffness
-    double Bt;          // Cohesion tangential stiffness
-    double Bm;          // Cohesion torque stiffness
-    double Eps;         // Threshold for breking bonds
-    double R;           // Spheroradius
-    size_t seed;        // Seed of the ramdon generator
-    double dt;          // Time step
+	double Gt;          // Tangential dissipative coefficient
+	double Mu;          // Microscopic friction coefficient
+	double Muw;         // Frictional coefficient of the bottom wall
+	double Bn;          // Cohesion normal stiffness
+	double Bt;          // Cohesion tangential stiffness
+	double Bm;          // Cohesion torque stiffness
+	double Eps;         // Threshold for breking bonds
+	double R;           // Spheroradius
+	size_t seed;        // Seed of the ramdon generator
+	double dt;          // Time step
 	double dtOut1;      // Time step for output for the dropping stage
-    double dtOut;       // Time step for output for the collapsing stage
-    double Lx;          // Lx
-    double Ly;          // Ly
-    double Lz;          // Lz
-    size_t scalingx;    // scalingx
-    size_t scalingy;    // scalingy
-    size_t scalingz;    // scalingz
-    size_t plane_x;     // the scaling of the size of the plane in x direction, how many particles per unit length
-    size_t plane_y;     // the scaling of the size of the plane in y direction, how many particles per unit length
-    double rho;         // rho
+	double dtOut;       // Time step for output for the collapsing stage
+	double Lx;          // Lx
+	double Ly;          // Ly
+	double Lz;          // Lz
+	size_t scalingx;    // scalingx
+	size_t scalingy;    // scalingy
+	size_t scalingz;    // scalingz
+	size_t plane_x;     // the scaling of the size of the plane in x direction, how many particles per unit length
+	size_t plane_y;     // the scaling of the size of the plane in y direction, how many particles per unit length
+	double rho;         // rho
 	double Tf1;         // Final time for the dropping stage test
-    double Tf;          // Final time for the collapsing test
-    {
+	double Tf;          // Final time for the collapsing test
+	{
 		infile >> CrossSection;     infile.ignore(200,'\n');
 		infile >> ptype;     infile.ignore(200,'\n');
 		infile >> test;     infile.ignore(200,'\n');
@@ -106,7 +106,7 @@ int main(int argc, char **argv) try
 		infile >> rho;          infile.ignore(200,'\n');
 		infile >> Tf1;          infile.ignore(200,'\n');
 		infile >> Tf;           infile.ignore(200,'\n');
-    }
+	}
 
 	
     //Some key parameters
@@ -162,11 +162,11 @@ int main(int argc, char **argv) try
 		}
 		
 		d.AddPlane (-11, Vec3_t(Lx/2.0,0.0,0.0),  R, Cf*Lz, Ly, 1.0, M_PI/2.0, &axis1);
-        d.AddPlane (-12, Vec3_t(-Lx/2.0,0.0,0.0), R, Cf*Lz, Ly, 1.0, 3.0*M_PI/2.0, &axis1);
-        d.AddPlane (-13, Vec3_t(0.0,Ly/2.0,0.0),  R, Lx, Cf*Lz, 1.0, 3.0*M_PI/2.0, &axis0);
-        d.AddPlane (-14, Vec3_t(0.0,-Ly/2.0,0.0), R, Lx, Cf*Lz, 1.0, M_PI/2.0, &axis0);
-        d.AddPlane (-15, Vec3_t(0.0,0.0,-Lz/2.0), R, 1.2*Lx, 1.2*Ly, 1.0);
-        d.GetParticle(-11)->FixVeloc();
+		d.AddPlane (-12, Vec3_t(-Lx/2.0,0.0,0.0), R, Cf*Lz, Ly, 1.0, 3.0*M_PI/2.0, &axis1);
+		d.AddPlane (-13, Vec3_t(0.0,Ly/2.0,0.0),  R, Lx, Cf*Lz, 1.0, 3.0*M_PI/2.0, &axis0);
+		d.AddPlane (-14, Vec3_t(0.0,-Ly/2.0,0.0), R, Lx, Cf*Lz, 1.0, M_PI/2.0, &axis0);
+		d.AddPlane (-15, Vec3_t(0.0,0.0,-Lz/2.0), R, 1.2*Lx, 1.2*Ly, 1.0);
+		d.GetParticle(-11)->FixVeloc();
 		d.GetParticle(-12)->FixVeloc();
 		d.GetParticle(-13)->FixVeloc();
 		d.GetParticle(-14)->FixVeloc();
@@ -200,13 +200,13 @@ int main(int argc, char **argv) try
         	}
 		}
 		Array<int> delpar0;
-    	Array<int> delpar1;
+		Array<int> delpar1;
 		Array<int> delpar2;
 		Array<int> delpar3;
 		Array<int> delpar4;
 		Array<int> delpar5;
 		
-    	if (countdel > 0)
+		if (countdel > 0)
 		{
     		delpar0.Push(10);
     		d.DelParticles(delpar0);
