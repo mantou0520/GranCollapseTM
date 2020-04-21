@@ -593,7 +593,7 @@ int main(int argc, char **argv) try
 		dt = 0.5*d.CriticalDt(); //Calculating time step
 		d.Alpha = R; //Verlet distance
 		//d.WriteXDMF("test");
-		d.Solve(/*tf*/Tf, dt, /*dtOut*/dtOut, NULL, NULL, "column_voro", 2, Nproc);
+		d.Solve(/*tf*/Tf, dt, /*dtOut*/dtOut, NULL, &Report, "column_voro", 2, Nproc);
 	}   
 }
 MECHSYS_CATCH
